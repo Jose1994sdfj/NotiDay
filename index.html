@@ -743,10 +743,11 @@
     <div id="goalModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Nueva Meta</h2>
+                <h2 id="goalModalTitle">Nueva Meta</h2>
                 <span class="close" id="closeGoalModal">&times;</span>
             </div>
             <form id="goalForm">
+                <input type="hidden" id="goalId">
                 <div class="form-group">
                     <label for="goalTitle">Título de la Meta</label>
                     <input type="text" id="goalTitle" required>
@@ -763,7 +764,7 @@
                     <label for="goalCurrent">Progreso Actual</label>
                     <input type="number" id="goalCurrent" min="0" value="0">
                 </div>
-                <button type="submit" class="btn-primary">Crear Meta</button>
+                <button type="submit" class="btn-primary" id="goalSubmitBtn">Crear Meta</button>
             </form>
         </div>
     </div>
@@ -797,6 +798,24 @@
         </div>
     </div>
 
+    <!-- Modal para Notas -->
+    <div id="noteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="noteModalTitle">Nueva Nota</h2>
+                <span class="close" id="closeNoteModal">&times;</span>
+            </div>
+            <form id="noteForm">
+                <input type="hidden" id="noteId">
+                <div class="form-group">
+                    <label for="noteContent">Contenido de la Nota</label>
+                    <textarea id="noteContent" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary" id="noteSubmitBtn">Guardar Nota</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Variables globales
         let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
@@ -809,6 +828,8 @@
         let minutes = 25;
         let seconds = 0;
         let totalTime = 25 * 60;
+        let editingGoalIndex = -1;
+        let editingNoteIndex = -1;
 
         // Gestión del tema
         const themeToggle = document.getElementById('themeToggle');
@@ -945,9 +966,16 @@
 
         // Gestión de Metas
         const goalModal = document.getElementById('goalModal');
+        const goalModalTitle = document.getElementById('goalModalTitle');
+        const goalSubmitBtn = document.getElementById('goalSubmitBtn');
         const addGoalBtn = document.getElementById('addGoalBtn');
         const closeGoalModal = document.getElementById('closeGoalModal');
         const goalForm = document.getElementById('goalForm');
+        const goalId = document.getElementById('goalId');
+        const goalTitle = document.getElementById('goalTitle');
+        const goalDescription = document.getElementById('goalDescription');
+        const goalTarget = document.getElementById('goalTarget');
+        const goalCurrent = document.getElementById('goalCurrent');
         const goalsList = document.getElementById('goalsList');
 
         function renderGoals() {
@@ -975,6 +1003,10 @@
                     </div>
                 `;
                 goalsList.appendChild(goalDiv);
+
+                // Agregar event listeners para editar y eliminar
+                goalDiv.querySelector('.edit-goal').addEventListener('click', () => editGoal(index));
+                goalDiv.querySelector('.delete-goal').addEventListener('click', () => deleteGoal(index));
             });
             saveGoals();
         }
@@ -986,6 +1018,7 @@
 
         function addGoal(title, description, target, current = 0) {
             goals.push({
+                id: Date.now().toString(),
                 title,
                 description,
                 target: parseInt(target),
@@ -993,6 +1026,31 @@
                 createdAt: new Date().toISOString()
             });
             renderGoals();
+        }
+
+        function editGoal(index) {
+            const goal = goals[index];
+            goalModalTitle.textContent = 'Editar Meta';
+            goalSubmitBtn.textContent = 'Actualizar Meta';
+            goalId.value = goal.id;
+            goalTitle.value = goal.title;
+            goalDescription.value = goal.description;
+            goalTarget.value = goal.target;
+            goalCurrent.value = goal.current;
+            editingGoalIndex = index;
+            goalModal.style.display = 'block';
+        }
+
+        function updateGoal(id, title, description, target, current) {
+            const index = goals.findIndex(goal => goal.id === id);
+            if (index !== -1) {
+                goals[index].title = title;
+                goals[index].description = description;
+                goals[index].target = parseInt(target);
+                goals[index].current = parseInt(current);
+                goals[index].updatedAt = new Date().toISOString();
+                renderGoals();
+            }
         }
 
         function deleteGoal(index) {
@@ -1007,6 +1065,11 @@
         }
 
         addGoalBtn.addEventListener('click', () => {
+            goalModalTitle.textContent = 'Nueva Meta';
+            goalSubmitBtn.textContent = 'Crear Meta';
+            goalForm.reset();
+            goalId.value = '';
+            editingGoalIndex = -1;
             goalModal.style.display = 'block';
         });
 
@@ -1017,22 +1080,19 @@
 
         goalForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const title = document.getElementById('goalTitle').value;
-            const description = document.getElementById('goalDescription').value;
-            const target = document.getElementById('goalTarget').value;
-            const current = document.getElementById('goalCurrent').value;
+            const title = goalTitle.value;
+            const description = goalDescription.value;
+            const target = goalTarget.value;
+            const current = goalCurrent.value;
+            const id = goalId.value;
 
-            addGoal(title, description, target, current);
+            if (id) {
+                updateGoal(id, title, description, target, current);
+            } else {
+                addGoal(title, description, target, current);
+            }
             goalModal.style.display = 'none';
             goalForm.reset();
-        });
-
-        // Event delegation para botones de metas
-        goalsList.addEventListener('click', (e) => {
-            if (e.target.classList.contains('delete-goal')) {
-                const index = parseInt(e.target.getAttribute('data-index'));
-                deleteGoal(index);
-            }
         });
 
         // Gestión del Calendario
@@ -1059,117 +1119,114 @@
 
             currentMonthEl.textContent = `${monthNames[month]} ${year}`;
 
-            // Limpiar calendario
-            calendarGrid.innerHTML = '';
-
-            // Agregar headers de días
-            dayNames.forEach(day => {
-                const dayHeader = document.createElement('div');
-                dayHeader.className = 'calendar-day-header';
-                dayHeader.textContent = day;
-                calendarGrid.appendChild(dayHeader);
-            });
-
-            // Primer día del mes y días en el mes
+            // Obtener primer día del mes y número de días
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const today = new Date();
 
-            // Días vacíos al inicio
+            // Limpiar grid
+            calendarGrid.innerHTML = '';
+
+            // Agregar encabezados de días
+            for (let i = 0; i < 7; i++) {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = dayNames[i];
+                calendarGrid.appendChild(dayHeader);
+            }
+
+            // Agregar días vacíos al inicio
             for (let i = 0; i < firstDay; i++) {
                 const emptyDay = document.createElement('div');
                 emptyDay.className = 'calendar-day';
                 calendarGrid.appendChild(emptyDay);
             }
 
-            // Días del mes
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayEl = document.createElement('div');
-                dayEl.className = 'calendar-day';
-                dayEl.textContent = day;
+            // Agregar días del mes
+            const today = new Date();
+            for (let i = 1; i <= daysInMonth; i++) {
+                const day = document.createElement('div');
+                day.className = 'calendar-day';
+                day.textContent = i;
 
-                const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-                const hasEvent = events.some(event => event.date === dateStr);
-
-                if (hasEvent) {
-                    dayEl.classList.add('has-event');
+                // Comprobar si es hoy
+                if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                    day.classList.add('today');
                 }
 
-                if (today.getDate() === day && today.getMonth() === month && today.getFullYear() === year) {
-                    dayEl.classList.add('today');
+                // Comprobar si hay eventos en este día
+                const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+                const dayEvents = events.filter(event => event.date === dateStr);
+                if (dayEvents.length > 0) {
+                    day.classList.add('has-event');
+                    day.title = `${dayEvents.length} evento(s)`;
                 }
 
-                dayEl.addEventListener('click', () => {
-                    document.getElementById('eventDate').value = dateStr;
-                    eventModal.style.display = 'block';
-                });
-
-                calendarGrid.appendChild(dayEl);
+                day.addEventListener('click', () => showDayEvents(dateStr));
+                calendarGrid.appendChild(day);
             }
-
-            renderTodayEvents();
         }
 
-        function renderTodayEvents() {
-            const today = new Date().toISOString().split('T')[0];
-            const todayEvents = events.filter(event => event.date === today);
-
+        function showDayEvents(dateStr) {
+            const dayEvents = events.filter(event => event.date === dateStr);
             eventsList.innerHTML = '';
-            if (todayEvents.length === 0) {
-                eventsList.innerHTML = '<p style="color: var(--gray); text-align: center;">No hay eventos para hoy</p>';
+
+            if (dayEvents.length === 0) {
+                eventsList.innerHTML = '<p>No hay eventos para este día</p>';
                 return;
             }
 
-            todayEvents.forEach((event, index) => {
-                const eventDiv = document.createElement('div');
-                eventDiv.className = 'event-item fade-in';
-                eventDiv.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>${event.title}</strong>
-                            ${event.time ? `<div style="color: var(--gray); font-size: 0.9rem;">${event.time}</div>` : ''}
-                            ${event.description ? `<div style="color: var(--gray); font-size: 0.9rem; margin-top: 5px;">${event.description}</div>` : ''}
-                        </div>
-                        <button class="task-actions" onclick="deleteEvent('${event.id}')" style="color: var(--gray);">✕</button>
-                    </div>
+            dayEvents.forEach(event => {
+                const eventItem = document.createElement('div');
+                eventItem.className = 'event-item';
+                eventItem.innerHTML = `
+                    <strong>${event.title}</strong>
+                    ${event.time ? `<br><small>${event.time}</small>` : ''}
+                    ${event.description ? `<p>${event.description}</p>` : ''}
                 `;
-                eventsList.appendChild(eventDiv);
+                eventsList.appendChild(eventItem);
             });
         }
 
+        function prevMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+
         function addEvent(title, date, time, description) {
-            const newEvent = {
+            events.push({
                 id: Date.now().toString(),
                 title,
                 date,
                 time,
                 description,
                 createdAt: new Date().toISOString()
-            };
-            events.push(newEvent);
+            });
             saveEvents();
             renderCalendar();
-        }
-
-        function deleteEvent(eventId) {
-            if (confirm('¿Eliminar este evento?')) {
-                events = events.filter(event => event.id !== eventId);
-                saveEvents();
-                renderCalendar();
-            }
         }
 
         function saveEvents() {
             localStorage.setItem('events', JSON.stringify(events));
         }
 
+        prevMonthBtn.addEventListener('click', prevMonth);
+        nextMonthBtn.addEventListener('click', nextMonth);
+
         addEventBtn.addEventListener('click', () => {
+            eventForm.reset();
+            // Establecer fecha actual por defecto
+            const today = new Date();
+            document.getElementById('eventDate').value = today.toISOString().split('T')[0];
             eventModal.style.display = 'block';
         });
 
         closeEventModal.addEventListener('click', () => {
             eventModal.style.display = 'none';
-            eventForm.reset();
         });
 
         eventForm.addEventListener('submit', (e) => {
@@ -1181,65 +1238,70 @@
 
             addEvent(title, date, time, description);
             eventModal.style.display = 'none';
-            eventForm.reset();
         });
 
-        prevMonthBtn.addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        });
-
-        nextMonthBtn.addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        });
-
-        // Gestión de Notas Mejorada
+        // Gestión de Notas
+        const noteModal = document.getElementById('noteModal');
+        const noteModalTitle = document.getElementById('noteModalTitle');
+        const noteSubmitBtn = document.getElementById('noteSubmitBtn');
         const addNoteBtn = document.getElementById('addNoteBtn');
+        const closeNoteModal = document.getElementById('closeNoteModal');
+        const noteForm = document.getElementById('noteForm');
+        const noteId = document.getElementById('noteId');
+        const noteContent = document.getElementById('noteContent');
         const notesContainer = document.getElementById('notesContainer');
 
         function renderNotes() {
             notesContainer.innerHTML = '';
             notes.forEach((note, index) => {
-                const noteElement = document.createElement('div');
-                noteElement.className = 'note fade-in';
-                noteElement.innerHTML = `
+                const noteDiv = document.createElement('div');
+                noteDiv.className = 'note fade-in';
+                noteDiv.innerHTML = `
                     <div class="note-content">${note.content}</div>
                     <div class="note-actions">
-                        <button class="edit-note" title="Editar nota">✎</button>
-                        <button class="delete-note" title="Eliminar nota">✕</button>
+                        <button class="edit-note" data-index="${index}" title="Editar nota">✎</button>
+                        <button class="delete-note" data-index="${index}" title="Eliminar nota">✕</button>
                     </div>
                 `;
-                notesContainer.appendChild(noteElement);
+                notesContainer.appendChild(noteDiv);
 
-                noteElement.querySelector('.edit-note').addEventListener('click', () => editNote(index));
-                noteElement.querySelector('.delete-note').addEventListener('click', () => deleteNote(index));
+                // Agregar event listeners para editar y eliminar
+                noteDiv.querySelector('.edit-note').addEventListener('click', () => editNote(index));
+                noteDiv.querySelector('.delete-note').addEventListener('click', () => deleteNote(index));
             });
             saveNotes();
         }
 
-        function addNote() {
-            const content = prompt('Escribe tu nota:');
-            if (content && content.trim() !== '') {
-                notes.unshift({
-                    content: content.trim(),
-                    createdAt: new Date().toISOString()
-                });
-                renderNotes();
-            }
+        function addNote(content) {
+            notes.push({
+                id: Date.now().toString(),
+                content,
+                createdAt: new Date().toISOString()
+            });
+            renderNotes();
         }
 
         function editNote(index) {
-            const newContent = prompt('Edita tu nota:', notes[index].content);
-            if (newContent !== null && newContent.trim() !== '') {
-                notes[index].content = newContent.trim();
+            const note = notes[index];
+            noteModalTitle.textContent = 'Editar Nota';
+            noteSubmitBtn.textContent = 'Actualizar Nota';
+            noteId.value = note.id;
+            noteContent.value = note.content;
+            editingNoteIndex = index;
+            noteModal.style.display = 'block';
+        }
+
+        function updateNote(id, content) {
+            const index = notes.findIndex(note => note.id === id);
+            if (index !== -1) {
+                notes[index].content = content;
                 notes[index].updatedAt = new Date().toISOString();
                 renderNotes();
             }
         }
 
         function deleteNote(index) {
-            if (confirm('¿Eliminar esta nota?')) {
+            if (confirm('¿Estás seguro de eliminar esta nota?')) {
                 notes.splice(index, 1);
                 renderNotes();
             }
@@ -1249,123 +1311,99 @@
             localStorage.setItem('notes', JSON.stringify(notes));
         }
 
-        addNoteBtn.addEventListener('click', addNote);
+        addNoteBtn.addEventListener('click', () => {
+            noteModalTitle.textContent = 'Nueva Nota';
+            noteSubmitBtn.textContent = 'Crear Nota';
+            noteForm.reset();
+            noteId.value = '';
+            editingNoteIndex = -1;
+            noteModal.style.display = 'block';
+        });
 
-        // Gestión del Clima Mejorada
+        closeNoteModal.addEventListener('click', () => {
+            noteModal.style.display = 'none';
+            noteForm.reset();
+        });
+
+        noteForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const content = noteContent.value;
+            const id = noteId.value;
+
+            if (id) {
+                updateNote(id, content);
+            } else {
+                addNote(content);
+            }
+            noteModal.style.display = 'none';
+            noteForm.reset();
+        });
+
+        // Gestión del Clima
         const weatherInfo = document.getElementById('weatherInfo');
         const getWeatherBtn = document.getElementById('getWeatherBtn');
 
         function getWeather() {
-            // Simulación de datos de clima (en una implementación real, usarías una API)
+            // Simulación de datos del clima (en una app real, usarías una API)
             const weatherData = {
-                temperature: Math.floor(Math.random() * 15) + 18,
-                condition: ['Soleado', 'Nublado', 'Lluvioso', 'Parcialmente nublado'][Math.floor(Math.random() * 4)],
-                humidity: Math.floor(Math.random() * 40) + 40,
-                windSpeed: Math.floor(Math.random() * 10) + 5
-            };
-
-            const weatherIcons = {
-                'Soleado': '☀️',
-                'Nublado': '☁️',
-                'Lluvioso': '🌧️',
-                'Parcialmente nublado': '⛅'
+                temperature: Math.floor(Math.random() * 30) + 10,
+                condition: 'Parcialmente nublado',
+                humidity: Math.floor(Math.random() * 50) + 30,
+                windSpeed: Math.floor(Math.random() * 20) + 5
             };
 
             weatherInfo.innerHTML = `
-                <div class="weather-icon">${weatherIcons[weatherData.condition]}</div>
+                <div class="weather-icon">🌤️</div>
                 <div class="temperature">${weatherData.temperature}°C</div>
-                <div class="weather-description">${weatherData.condition}</div>
+                <div>${weatherData.condition}</div>
                 <div class="weather-details">
                     <div class="weather-detail">
-                        <div><strong>Humedad</strong></div>
+                        <div>💧 Humedad</div>
                         <div>${weatherData.humidity}%</div>
                     </div>
                     <div class="weather-detail">
-                        <div><strong>Viento</strong></div>
+                        <div>💨 Viento</div>
                         <div>${weatherData.windSpeed} km/h</div>
                     </div>
                 </div>
-                <button class="btn-primary" onclick="getWeather()" style="margin-top: 15px;">Actualizar</button>
             `;
         }
 
         getWeatherBtn.addEventListener('click', getWeather);
 
-        // Sistema de notificaciones
+        // Función de notificación
         function showNotification(title, message) {
-            if (Notification.permission === 'granted') {
-                new Notification(title, {
-                    body: message,
-                    icon: '🎯'
-                });
-            } else if (Notification.permission !== 'denied') {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, { body: message });
+            } else if ('Notification' in window && Notification.permission !== 'denied') {
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
-                        new Notification(title, {
-                            body: message,
-                            icon: '🎯'
-                        });
+                        new Notification(title, { body: message });
                     }
                 });
             }
 
-            // Fallback: mostrar alerta
+            // Mostrar también una alerta simple como respaldo
             alert(`${title}\n${message}`);
         }
 
-        // Cerrar modales al hacer clic fuera
-        window.addEventListener('click', (e) => {
-            if (e.target === goalModal) {
-                goalModal.style.display = 'none';
-                goalForm.reset();
-            }
-            if (e.target === eventModal) {
-                eventModal.style.display = 'none';
-                eventForm.reset();
-            }
-            if (e.target === noteModal) {
-                noteModal.style.display = 'none';
-                noteForm.reset();
-            }
-        });
-
-        // Funciones de utilidad globales
-        window.updateGoalProgress = updateGoalProgress;
-        window.deleteEvent = deleteEvent;
-        window.getWeather = getWeather;
-
-        // Inicialización de la aplicación
-        function initApp() {
+        // Inicialización
+        function init() {
             loadPreferences();
             renderTasks();
+            updateTimerDisplay();
             renderGoals();
             renderCalendar();
             renderNotes();
-            updateTimerDisplay();
 
-            // Solicitar permisos de notificación
-            if ('Notification' in window && Notification.permission === 'default') {
+            // Solicitar permisos para notificaciones
+            if ('Notification' in window) {
                 Notification.requestPermission();
             }
-
-            // Animación de entrada para los widgets
-            const widgets = document.querySelectorAll('.widget');
-            widgets.forEach((widget, index) => {
-                setTimeout(() => {
-                    widget.classList.add('fade-in');
-                }, index * 100);
-            });
         }
 
-        // Inicializar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', initApp);
-
-        // Inicializar ahora si el DOM ya está listo
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initApp);
-        } else {
-            initApp();
-        }
+        // Iniciar la aplicación
+        init();
     </script>
 </body>
 </html>
