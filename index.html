@@ -3,144 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Dashboard Diario</title>
+    <title>Mi Dashboard Personal</title>
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --success: #4cc9f0;
-            --warning: #f72585;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --primary: #667eea;
+            --primary-light: #764ba2;
+            --secondary: #f093fb;
+            --success: #4facfe;
+            --warning: #f093fb;
+            --error: #ff6b6b;
+            --light: #f8fafc;
+            --dark: #1a202c;
+            --gray: #718096;
+            --gray-light: #e2e8f0;
+            --bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 20px;
         }
 
         .dark-mode {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --light: #2d2d2d;
-            --dark: #f8f9fa;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --bg-color: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            --card-bg: rgba(45, 55, 72, 0.95);
+            --light: #2d3748;
+            --dark: #f7fafc;
+            --gray-light: #4a5568;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: background-color 0.3s, color 0.3s;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-color);
             color: var(--dark);
             line-height: 1.6;
+            min-height: 100vh;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
         }
 
+        /* Header mejorado */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--gray);
+            padding: 30px 0;
+            margin-bottom: 40px;
         }
 
-        h1 {
-            color: var(--primary);
-            font-size: 2.5rem;
+        .header-content h1 {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 5px;
         }
 
-        .theme-toggle {
-            background: var(--primary);
+        .header-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .theme-toggle, .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border-radius: 50px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
         }
 
+        .theme-toggle:hover, .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Grid mejorado */
         .widgets-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
             margin-bottom: 30px;
         }
 
         .widget {
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            padding: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 25px;
             box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .widget::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
         }
 
         .widget-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--gray);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-light);
         }
 
         .widget-title {
-            font-size: 1.2rem;
-            font-weight: 600;
+            font-size: 1.3rem;
+            font-weight: 700;
             color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* Estilos para la lista de tareas */
+        .widget-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Estilos mejorados para tareas */
         .task-input {
             display: flex;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            gap: 10px;
         }
 
         .task-input input {
             flex: 1;
-            padding: 10px;
-            border: 1px solid var(--gray);
-            border-radius: 5px 0 0 5px;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: 12px;
             background-color: var(--light);
             color: var(--dark);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .task-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .task-input button {
-            padding: 10px 15px;
-            background-color: var(--primary);
+            padding: 12px 20px;
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
             color: white;
             border: none;
-            border-radius: 0 5px 5px 0;
+            border-radius: 12px;
             cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
         .task-list {
             list-style: none;
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--light);
         }
 
         .task-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid var(--gray);
+            padding: 15px;
+            border-bottom: 1px solid var(--gray-light);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 8px;
         }
 
-        .task-item:last-child {
-            border-bottom: none;
+        .task-item:hover {
+            background-color: var(--light);
+            transform: translateX(5px);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
         }
 
         .task-item.completed span {
@@ -152,120 +234,354 @@
             background: none;
             border: none;
             cursor: pointer;
-            margin-left: 5px;
+            margin-left: 8px;
             color: var(--gray);
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
         }
 
         .task-actions button:hover {
-            color: var(--primary);
+            background-color: var(--primary);
+            color: white;
         }
 
-        /* Estilos para el temporizador Pomodoro */
+        /* Timer Pomodoro mejorado */
         .timer-display {
             text-align: center;
-            font-size: 3rem;
-            font-weight: bold;
-            margin: 20px 0;
-            color: var(--primary);
+            font-size: 4rem;
+            font-weight: 800;
+            margin: 30px 0;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .timer-controls {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .timer-btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 50px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 100px;
         }
 
         .start-btn {
-            background-color: var(--success);
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
             color: white;
         }
 
         .pause-btn {
-            background-color: var(--warning);
-            color: white;
+            background: linear-gradient(45deg, #ffecd2, #fcb69f);
+            color: #8b4513;
         }
 
         .reset-btn {
-            background-color: var(--gray);
-            color: white;
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+            color: #666;
         }
 
-        /* Estilos para las notas rápidas */
+        .timer-progress {
+            width: 100%;
+            height: 8px;
+            background-color: var(--gray-light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .timer-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 1s ease;
+        }
+
+        /* Notas mejoradas */
         .notes-container {
             display: grid;
             gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         .note {
-            background-color: var(--light);
-            padding: 15px;
-            border-radius: 5px;
+            background: var(--light);
+            padding: 18px;
+            border-radius: 12px;
             position: relative;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .note:hover {
+            transform: translateX(3px);
+            box-shadow: var(--shadow);
+        }
+
+        .note-content {
+            margin-right: 60px;
+            word-break: break-word;
         }
 
         .note-actions {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
         }
 
-        .note-actions button {
-            background: none;
-            border: none;
-            cursor: pointer;
+        /* Widget de Metas */
+        .goals-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .goal-item {
+            background: var(--light);
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .goal-title {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .goal-progress {
+            width: 100%;
+            height: 8px;
+            background-color: var(--gray-light);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .goal-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--primary));
+            transition: width 0.3s ease;
+        }
+
+        .goal-percentage {
+            font-size: 0.9rem;
             color: var(--gray);
         }
 
-        .note-actions button:hover {
-            color: var(--primary);
+        /* Widget de Calendario */
+        .calendar-widget {
+            min-height: 450px;
         }
 
-        .add-note {
-            background-color: var(--primary);
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-nav button {
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 8px 12px;
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
+            transition: all 0.3s ease;
         }
 
-        /* Estilos para el clima */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 8px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .calendar-day.today {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-day.has-event::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background-color: var(--warning);
+            border-radius: 50%;
+        }
+
+        .events-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            background: var(--light);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* Clima mejorado */
         .weather-info {
             text-align: center;
         }
 
         .weather-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
+            font-size: 4rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
         }
 
         .temperature {
-            font-size: 2rem;
-            font-weight: bold;
+            font-size: 3rem;
+            font-weight: 800;
             margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .weather-details {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 15px;
+            margin-top: 20px;
         }
 
         .weather-detail {
-            background-color: var(--light);
-            padding: 10px;
-            border-radius: 5px;
+            background: var(--light);
+            padding: 15px;
+            border-radius: 12px;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .weather-detail:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Modales */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            color: var(--gray);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: var(--dark);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            background-color: var(--light);
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         /* Responsive */
@@ -274,43 +590,88 @@
                 grid-template-columns: 1fr;
             }
 
-            header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
+            .header-content h1 {
+                font-size: 2rem;
             }
+
+            .timer-display {
+                font-size: 2.5rem;
+            }
+
+            .temperature {
+                font-size: 2rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+                padding: 20px;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Mi Dashboard Diario</h1>
-            <button class="theme-toggle" id="themeToggle">
-                <span>Modo Oscuro</span>
-                <i>🌙</i>
-            </button>
+            <div class="header-content">
+                <h1>Dashboard Personal</h1>
+                <p class="header-subtitle">Organiza tu día de manera inteligente</p>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <span>Modo Oscuro</span>
+                    <i>🌙</i>
+                </button>
+            </div>
         </header>
 
         <div class="widgets-grid">
-            <!-- Widget de Tareas -->
+            <!-- Widget de Tareas Mejorado -->
             <div class="widget">
                 <div class="widget-header">
-                    <h2 class="widget-title">Lista de Tareas</h2>
+                    <h2 class="widget-title">
+                        <span class="widget-icon">📋</span>
+                        Lista de Tareas
+                    </h2>
                 </div>
                 <div class="task-input">
-                    <input type="text" id="taskInput" placeholder="Nueva tarea...">
+                    <input type="text" id="taskInput" placeholder="¿Qué necesitas hacer hoy?">
                     <button id="addTaskBtn">Agregar</button>
                 </div>
                 <ul class="task-list" id="taskList"></ul>
             </div>
 
-            <!-- Widget de Pomodoro -->
+            <!-- Widget de Pomodoro Mejorado -->
             <div class="widget">
                 <div class="widget-header">
-                    <h2 class="widget-title">Temporizador Pomodoro</h2>
+                    <h2 class="widget-title">
+                        <span class="widget-icon">🍅</span>
+                        Temporizador Pomodoro
+                    </h2>
                 </div>
                 <div class="timer-display" id="timerDisplay">25:00</div>
+                <div class="timer-progress">
+                    <div class="timer-progress-bar" id="timerProgressBar"></div>
+                </div>
                 <div class="timer-controls">
                     <button class="timer-btn start-btn" id="startBtn">Iniciar</button>
                     <button class="timer-btn pause-btn" id="pauseBtn">Pausar</button>
@@ -318,47 +679,158 @@
                 </div>
             </div>
 
-            <!-- Widget de Notas -->
+            <!-- Widget de Metas (Nuevo) -->
             <div class="widget">
                 <div class="widget-header">
-                    <h2 class="widget-title">Notas Rápidas</h2>
+                    <h2 class="widget-title">
+                        <span class="widget-icon">🎯</span>
+                        Mis Metas
+                    </h2>
+                    <button class="btn-primary" id="addGoalBtn">+ Nueva Meta</button>
                 </div>
-                <div class="notes-container" id="notesContainer"></div>
-                <button class="add-note" id="addNoteBtn">+ Nueva Nota</button>
+                <div class="goals-list" id="goalsList"></div>
             </div>
 
-            <!-- Widget de Clima -->
+            <!-- Widget de Calendario (Nuevo) -->
+            <div class="widget calendar-widget">
+                <div class="widget-header">
+                    <h2 class="widget-title">
+                        <span class="widget-icon">📅</span>
+                        Calendario
+                    </h2>
+                    <button class="btn-primary" id="addEventBtn">+ Evento</button>
+                </div>
+                <div class="calendar-header">
+                    <h3 id="currentMonth"></h3>
+                    <div class="calendar-nav">
+                        <button id="prevMonth">◀</button>
+                        <button id="nextMonth">▶</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+                <div class="events-list" id="eventsList"></div>
+            </div>
+
+            <!-- Widget de Notas Mejorado -->
             <div class="widget">
                 <div class="widget-header">
-                    <h2 class="widget-title">Clima</h2>
+                    <h2 class="widget-title">
+                        <span class="widget-icon">📝</span>
+                        Notas Rápidas
+                    </h2>
+                    <button class="btn-primary" id="addNoteBtn">+ Nueva Nota</button>
+                </div>
+                <div class="notes-container" id="notesContainer"></div>
+            </div>
+
+            <!-- Widget de Clima Mejorado -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h2 class="widget-title">
+                        <span class="widget-icon">🌤️</span>
+                        Clima
+                    </h2>
                 </div>
                 <div class="weather-info" id="weatherInfo">
                     <p>Haz clic para obtener el clima actual</p>
-                    <button class="timer-btn start-btn" id="getWeatherBtn">Obtener Clima</button>
+                    <button class="btn-primary" id="getWeatherBtn">Obtener Clima</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal para Metas -->
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nueva Meta</h2>
+                <span class="close" id="closeGoalModal">&times;</span>
+            </div>
+            <form id="goalForm">
+                <div class="form-group">
+                    <label for="goalTitle">Título de la Meta</label>
+                    <input type="text" id="goalTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="goalDescription">Descripción</label>
+                    <textarea id="goalDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="goalTarget">Meta Objetivo</label>
+                    <input type="number" id="goalTarget" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="goalCurrent">Progreso Actual</label>
+                    <input type="number" id="goalCurrent" min="0" value="0">
+                </div>
+                <button type="submit" class="btn-primary">Crear Meta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Eventos -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuevo Evento</h2>
+                <span class="close" id="closeEventModal">&times;</span>
+            </div>
+            <form id="eventForm">
+                <div class="form-group">
+                    <label for="eventTitle">Título del Evento</label>
+                    <input type="text" id="eventTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDate">Fecha</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventTime">Hora</label>
+                    <input type="time" id="eventTime">
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Descripción</label>
+                    <textarea id="eventDescription" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Crear Evento</button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Gestión del tema claro/oscuro
+        // Variables globales
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+        let goals = JSON.parse(localStorage.getItem('goals')) || [];
+        let events = JSON.parse(localStorage.getItem('events')) || [];
+        let currentDate = new Date();
+        let timer = null;
+        let isRunning = false;
+        let minutes = 25;
+        let seconds = 0;
+        let totalTime = 25 * 60;
+
+        // Gestión del tema
         const themeToggle = document.getElementById('themeToggle');
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
+            updateThemeButton();
+            savePreferences();
+        });
+
+        function updateThemeButton() {
             if (document.body.classList.contains('dark-mode')) {
                 themeToggle.innerHTML = '<span>Modo Claro</span> <i>☀️</i>';
             } else {
                 themeToggle.innerHTML = '<span>Modo Oscuro</span> <i>🌙</i>';
             }
-            savePreferences();
-        });
+        }
 
-        // Cargar preferencias guardadas
         function loadPreferences() {
             const darkMode = localStorage.getItem('darkMode') === 'true';
             if (darkMode) {
                 document.body.classList.add('dark-mode');
-                themeToggle.innerHTML = '<span>Modo Claro</span> <i>☀️</i>';
+                updateThemeButton();
             }
         }
 
@@ -366,27 +838,25 @@
             localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
         }
 
-        // Gestión de tareas
+        // Gestión de Tareas Mejorada
         const taskInput = document.getElementById('taskInput');
         const addTaskBtn = document.getElementById('addTaskBtn');
         const taskList = document.getElementById('taskList');
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
         function renderTasks() {
             taskList.innerHTML = '';
             tasks.forEach((task, index) => {
                 const li = document.createElement('li');
-                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                li.className = `task-item ${task.completed ? 'completed' : ''} fade-in`;
                 li.innerHTML = `
                     <span>${task.text}</span>
                     <div class="task-actions">
-                        <button class="complete-btn">${task.completed ? '↶' : '✓'}</button>
-                        <button class="delete-btn">✕</button>
+                        <button class="complete-btn" title="${task.completed ? 'Marcar como pendiente' : 'Marcar como completada'}">${task.completed ? '↶' : '✓'}</button>
+                        <button class="delete-btn" title="Eliminar tarea">✕</button>
                     </div>
                 `;
                 taskList.appendChild(li);
 
-                // Eventos para los botones
                 li.querySelector('.complete-btn').addEventListener('click', () => toggleTask(index));
                 li.querySelector('.delete-btn').addEventListener('click', () => deleteTask(index));
             });
@@ -396,7 +866,7 @@
         function addTask() {
             const text = taskInput.value.trim();
             if (text) {
-                tasks.push({ text, completed: false });
+                tasks.unshift({ text, completed: false, createdAt: new Date().toISOString() });
                 taskInput.value = '';
                 renderTasks();
             }
@@ -421,19 +891,18 @@
             if (e.key === 'Enter') addTask();
         });
 
-        // Temporizador Pomodoro
+        // Temporizador Pomodoro Mejorado
         const timerDisplay = document.getElementById('timerDisplay');
+        const timerProgressBar = document.getElementById('timerProgressBar');
         const startBtn = document.getElementById('startBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const resetBtn = document.getElementById('resetBtn');
 
-        let timer;
-        let minutes = 25;
-        let seconds = 0;
-        let isRunning = false;
-
-        function updateDisplay() {
+        function updateTimerDisplay() {
             timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            const elapsed = totalTime - (minutes * 60 + seconds);
+            const progress = (elapsed / totalTime) * 100;
+            timerProgressBar.style.width = `${progress}%`;
         }
 
         function startTimer() {
@@ -444,7 +913,7 @@
                         if (minutes === 0) {
                             clearInterval(timer);
                             isRunning = false;
-                            alert('¡Tiempo completado!');
+                            showNotification('¡Tiempo completado!', '🍅 ¡Excelente trabajo! Toma un descanso.');
                             return;
                         }
                         minutes--;
@@ -452,7 +921,7 @@
                     } else {
                         seconds--;
                     }
-                    updateDisplay();
+                    updateTimerDisplay();
                 }, 1000);
             }
         }
@@ -467,33 +936,282 @@
             isRunning = false;
             minutes = 25;
             seconds = 0;
-            updateDisplay();
+            updateTimerDisplay();
         }
 
         startBtn.addEventListener('click', startTimer);
         pauseBtn.addEventListener('click', pauseTimer);
         resetBtn.addEventListener('click', resetTimer);
 
-        // Gestión de notas
-        const notesContainer = document.getElementById('notesContainer');
+        // Gestión de Metas
+        const goalModal = document.getElementById('goalModal');
+        const addGoalBtn = document.getElementById('addGoalBtn');
+        const closeGoalModal = document.getElementById('closeGoalModal');
+        const goalForm = document.getElementById('goalForm');
+        const goalsList = document.getElementById('goalsList');
+
+        function renderGoals() {
+            goalsList.innerHTML = '';
+            goals.forEach((goal, index) => {
+                const percentage = Math.round((goal.current / goal.target) * 100);
+                const goalDiv = document.createElement('div');
+                goalDiv.className = 'goal-item fade-in';
+                goalDiv.innerHTML = `
+                    <div class="goal-header">
+                        <div class="goal-title">${goal.title}</div>
+                        <div class="task-actions">
+                            <button class="edit-goal" data-index="${index}" title="Editar meta">✎</button>
+                            <button class="delete-goal" data-index="${index}" title="Eliminar meta">✕</button>
+                        </div>
+                    </div>
+                    <p style="color: var(--gray); margin-bottom: 10px;">${goal.description}</p>
+                    <div class="goal-progress">
+                        <div class="goal-progress-bar" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="goal-percentage">${goal.current} / ${goal.target} (${percentage}%)</div>
+                    <div style="margin-top: 10px;">
+                        <button class="timer-btn start-btn" onclick="updateGoalProgress(${index}, 1)">+1</button>
+                        <button class="timer-btn pause-btn" onclick="updateGoalProgress(${index}, -1)">-1</button>
+                    </div>
+                `;
+                goalsList.appendChild(goalDiv);
+            });
+            saveGoals();
+        }
+
+        function updateGoalProgress(index, change) {
+            goals[index].current = Math.max(0, Math.min(goals[index].target, goals[index].current + change));
+            renderGoals();
+        }
+
+        function addGoal(title, description, target, current = 0) {
+            goals.push({
+                title,
+                description,
+                target: parseInt(target),
+                current: parseInt(current),
+                createdAt: new Date().toISOString()
+            });
+            renderGoals();
+        }
+
+        function deleteGoal(index) {
+            if (confirm('¿Estás seguro de eliminar esta meta?')) {
+                goals.splice(index, 1);
+                renderGoals();
+            }
+        }
+
+        function saveGoals() {
+            localStorage.setItem('goals', JSON.stringify(goals));
+        }
+
+        addGoalBtn.addEventListener('click', () => {
+            goalModal.style.display = 'block';
+        });
+
+        closeGoalModal.addEventListener('click', () => {
+            goalModal.style.display = 'none';
+            goalForm.reset();
+        });
+
+        goalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('goalTitle').value;
+            const description = document.getElementById('goalDescription').value;
+            const target = document.getElementById('goalTarget').value;
+            const current = document.getElementById('goalCurrent').value;
+
+            addGoal(title, description, target, current);
+            goalModal.style.display = 'none';
+            goalForm.reset();
+        });
+
+        // Event delegation para botones de metas
+        goalsList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-goal')) {
+                const index = parseInt(e.target.getAttribute('data-index'));
+                deleteGoal(index);
+            }
+        });
+
+        // Gestión del Calendario
+        const eventModal = document.getElementById('eventModal');
+        const addEventBtn = document.getElementById('addEventBtn');
+        const closeEventModal = document.getElementById('closeEventModal');
+        const eventForm = document.getElementById('eventForm');
+        const currentMonthEl = document.getElementById('currentMonth');
+        const prevMonthBtn = document.getElementById('prevMonth');
+        const nextMonthBtn = document.getElementById('nextMonth');
+        const calendarGrid = document.getElementById('calendarGrid');
+        const eventsList = document.getElementById('eventsList');
+
+        const monthNames = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+
+        const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            currentMonthEl.textContent = `${monthNames[month]} ${year}`;
+
+            // Limpiar calendario
+            calendarGrid.innerHTML = '';
+
+            // Agregar headers de días
+            dayNames.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+
+            // Primer día del mes y días en el mes
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+
+            // Días vacíos al inicio
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day';
+                calendarGrid.appendChild(emptyDay);
+            }
+
+            // Días del mes
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                dayEl.textContent = day;
+
+                const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                const hasEvent = events.some(event => event.date === dateStr);
+
+                if (hasEvent) {
+                    dayEl.classList.add('has-event');
+                }
+
+                if (today.getDate() === day && today.getMonth() === month && today.getFullYear() === year) {
+                    dayEl.classList.add('today');
+                }
+
+                dayEl.addEventListener('click', () => {
+                    document.getElementById('eventDate').value = dateStr;
+                    eventModal.style.display = 'block';
+                });
+
+                calendarGrid.appendChild(dayEl);
+            }
+
+            renderTodayEvents();
+        }
+
+        function renderTodayEvents() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayEvents = events.filter(event => event.date === today);
+
+            eventsList.innerHTML = '';
+            if (todayEvents.length === 0) {
+                eventsList.innerHTML = '<p style="color: var(--gray); text-align: center;">No hay eventos para hoy</p>';
+                return;
+            }
+
+            todayEvents.forEach((event, index) => {
+                const eventDiv = document.createElement('div');
+                eventDiv.className = 'event-item fade-in';
+                eventDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${event.title}</strong>
+                            ${event.time ? `<div style="color: var(--gray); font-size: 0.9rem;">${event.time}</div>` : ''}
+                            ${event.description ? `<div style="color: var(--gray); font-size: 0.9rem; margin-top: 5px;">${event.description}</div>` : ''}
+                        </div>
+                        <button class="task-actions" onclick="deleteEvent('${event.id}')" style="color: var(--gray);">✕</button>
+                    </div>
+                `;
+                eventsList.appendChild(eventDiv);
+            });
+        }
+
+        function addEvent(title, date, time, description) {
+            const newEvent = {
+                id: Date.now().toString(),
+                title,
+                date,
+                time,
+                description,
+                createdAt: new Date().toISOString()
+            };
+            events.push(newEvent);
+            saveEvents();
+            renderCalendar();
+        }
+
+        function deleteEvent(eventId) {
+            if (confirm('¿Eliminar este evento?')) {
+                events = events.filter(event => event.id !== eventId);
+                saveEvents();
+                renderCalendar();
+            }
+        }
+
+        function saveEvents() {
+            localStorage.setItem('events', JSON.stringify(events));
+        }
+
+        addEventBtn.addEventListener('click', () => {
+            eventModal.style.display = 'block';
+        });
+
+        closeEventModal.addEventListener('click', () => {
+            eventModal.style.display = 'none';
+            eventForm.reset();
+        });
+
+        eventForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('eventTitle').value;
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const description = document.getElementById('eventDescription').value;
+
+            addEvent(title, date, time, description);
+            eventModal.style.display = 'none';
+            eventForm.reset();
+        });
+
+        prevMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        nextMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        // Gestión de Notas Mejorada
         const addNoteBtn = document.getElementById('addNoteBtn');
-        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+        const notesContainer = document.getElementById('notesContainer');
 
         function renderNotes() {
             notesContainer.innerHTML = '';
             notes.forEach((note, index) => {
                 const noteElement = document.createElement('div');
-                noteElement.className = 'note';
+                noteElement.className = 'note fade-in';
                 noteElement.innerHTML = `
-                    <div class="note-content">${note}</div>
+                    <div class="note-content">${note.content}</div>
                     <div class="note-actions">
-                        <button class="edit-note">✎</button>
-                        <button class="delete-note">✕</button>
+                        <button class="edit-note" title="Editar nota">✎</button>
+                        <button class="delete-note" title="Eliminar nota">✕</button>
                     </div>
                 `;
                 notesContainer.appendChild(noteElement);
 
-                // Eventos para los botones
                 noteElement.querySelector('.edit-note').addEventListener('click', () => editNote(index));
                 noteElement.querySelector('.delete-note').addEventListener('click', () => deleteNote(index));
             });
@@ -501,17 +1219,21 @@
         }
 
         function addNote() {
-            const note = prompt('Escribe tu nota:');
-            if (note !== null && note.trim() !== '') {
-                notes.push(note);
+            const content = prompt('Escribe tu nota:');
+            if (content && content.trim() !== '') {
+                notes.unshift({
+                    content: content.trim(),
+                    createdAt: new Date().toISOString()
+                });
                 renderNotes();
             }
         }
 
         function editNote(index) {
-            const newNote = prompt('Edita tu nota:', notes[index]);
-            if (newNote !== null && newNote.trim() !== '') {
-                notes[index] = newNote;
+            const newContent = prompt('Edita tu nota:', notes[index].content);
+            if (newContent !== null && newContent.trim() !== '') {
+                notes[index].content = newContent.trim();
+                notes[index].updatedAt = new Date().toISOString();
                 renderNotes();
             }
         }
@@ -529,87 +1251,117 @@
 
         addNoteBtn.addEventListener('click', addNote);
 
-        // Clima (usando OpenWeatherMap API)
+        // Gestión del Clima Mejorada
         const weatherInfo = document.getElementById('weatherInfo');
         const getWeatherBtn = document.getElementById('getWeatherBtn');
 
         function getWeather() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-
-                        // Nota: Necesitarás tu propia API key de OpenWeatherMap
-                        const apiKey = 'TU_API_KEY_AQUI'; // Reemplaza con tu API key
-                        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
-
-                        fetch(url)
-                            .then(response => response.json())
-                            .then(data => {
-                                weatherInfo.innerHTML = `
-                                    <div class="weather-icon">${getWeatherIcon(data.weather[0].main)}</div>
-                                    <div class="temperature">${Math.round(data.main.temp)}°C</div>
-                                    <div class="weather-description">${data.weather[0].description}</div>
-                                    <div class="weather-details">
-                                        <div class="weather-detail">
-                                            <div>Humedad</div>
-                                            <div>${data.main.humidity}%</div>
-                                        </div>
-                                        <div class="weather-detail">
-                                            <div>Viento</div>
-                                            <div>${data.wind.speed} m/s</div>
-                                        </div>
-                                    </div>
-                                `;
-                            })
-                            .catch(error => {
-                                console.error('Error obteniendo el clima:', error);
-                                weatherInfo.innerHTML = '<p>No se pudo obtener la información del clima</p>';
-                            });
-                    },
-                    error => {
-                        console.error('Error obteniendo ubicación:', error);
-                        weatherInfo.innerHTML = '<p>No se pudo obtener tu ubicación</p>';
-                    }
-                );
-            } else {
-                weatherInfo.innerHTML = '<p>La geolocalización no es soportada por tu navegador</p>';
-            }
-        }
-
-        function getWeatherIcon(weatherMain) {
-            const icons = {
-                'Clear': '☀️',
-                'Clouds': '☁️',
-                'Rain': '🌧️',
-                'Drizzle': '🌦️',
-                'Thunderstorm': '⛈️',
-                'Snow': '❄️',
-                'Mist': '🌫️',
-                'Smoke': '🌫️',
-                'Haze': '🌫️',
-                'Dust': '🌫️',
-                'Fog': '🌫️',
-                'Sand': '🌫️',
-                'Ash': '🌫️',
-                'Squall': '💨',
-                'Tornado': '🌪️'
+            // Simulación de datos de clima (en una implementación real, usarías una API)
+            const weatherData = {
+                temperature: Math.floor(Math.random() * 15) + 18,
+                condition: ['Soleado', 'Nublado', 'Lluvioso', 'Parcialmente nublado'][Math.floor(Math.random() * 4)],
+                humidity: Math.floor(Math.random() * 40) + 40,
+                windSpeed: Math.floor(Math.random() * 10) + 5
             };
-            return icons[weatherMain] || '🌡️';
+
+            const weatherIcons = {
+                'Soleado': '☀️',
+                'Nublado': '☁️',
+                'Lluvioso': '🌧️',
+                'Parcialmente nublado': '⛅'
+            };
+
+            weatherInfo.innerHTML = `
+                <div class="weather-icon">${weatherIcons[weatherData.condition]}</div>
+                <div class="temperature">${weatherData.temperature}°C</div>
+                <div class="weather-description">${weatherData.condition}</div>
+                <div class="weather-details">
+                    <div class="weather-detail">
+                        <div><strong>Humedad</strong></div>
+                        <div>${weatherData.humidity}%</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div><strong>Viento</strong></div>
+                        <div>${weatherData.windSpeed} km/h</div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="getWeather()" style="margin-top: 15px;">Actualizar</button>
+            `;
         }
 
         getWeatherBtn.addEventListener('click', getWeather);
 
-        // Inicializar la aplicación
+        // Sistema de notificaciones
+        function showNotification(title, message) {
+            if (Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: message,
+                    icon: '🎯'
+                });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification(title, {
+                            body: message,
+                            icon: '🎯'
+                        });
+                    }
+                });
+            }
+
+            // Fallback: mostrar alerta
+            alert(`${title}\n${message}`);
+        }
+
+        // Cerrar modales al hacer clic fuera
+        window.addEventListener('click', (e) => {
+            if (e.target === goalModal) {
+                goalModal.style.display = 'none';
+                goalForm.reset();
+            }
+            if (e.target === eventModal) {
+                eventModal.style.display = 'none';
+                eventForm.reset();
+            }
+        });
+
+        // Funciones de utilidad globales
+        window.updateGoalProgress = updateGoalProgress;
+        window.deleteEvent = deleteEvent;
+        window.getWeather = getWeather;
+
+        // Inicialización de la aplicación
         function initApp() {
             loadPreferences();
             renderTasks();
-            updateDisplay();
+            renderGoals();
+            renderCalendar();
             renderNotes();
+            updateTimerDisplay();
+
+            // Solicitar permisos de notificación
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+
+            // Animación de entrada para los widgets
+            const widgets = document.querySelectorAll('.widget');
+            widgets.forEach((widget, index) => {
+                setTimeout(() => {
+                    widget.classList.add('fade-in');
+                }, index * 100);
+            });
         }
 
-        initApp();
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        // Inicializar ahora si el DOM ya está listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
     </script>
 </body>
 </html>
